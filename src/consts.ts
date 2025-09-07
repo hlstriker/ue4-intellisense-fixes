@@ -76,8 +76,8 @@ export const UE4_BUILD_CONFIGURATION_DEVELOPMENT = "Development";
 export const ENCODING_UTF_8 = "utf-8";
 export const JSON_SPACING = 4;
 
-export const MAIN_STATUS_TEXT_FIXING = "IF $(symbol-property)";
-export const MAIN_STATUS_TEXT_DONE = "IF $(check)";
+export const MAIN_STATUS_TEXT_FIXING = "UE FIX $(symbol-property)";
+export const MAIN_STATUS_TEXT_DONE = "UE FIX $(check)";
 export const MAIN_STATUS_ALIGN = vscode.StatusBarAlignment.Left;
 export const MAIN_STATUS_PRIORITY = -1500;
 export const MAIN_STATUS_COMMAND = "UEIntellisenseFixes.showLog";

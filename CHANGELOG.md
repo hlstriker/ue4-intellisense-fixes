@@ -9,6 +9,7 @@
 ### Changed
 - Activation no longer blocks: startup work runs in the background
 - Status bar completion message is now disposed asynchronously (removed long awaited delay in activation)
+- Status bar now displays as "UE FIX" instead of "IF"
 
 # [3.8.3-hlstriker] 2025-9-7
 ### Added

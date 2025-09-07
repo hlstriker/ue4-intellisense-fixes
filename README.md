@@ -62,6 +62,7 @@ VSCode Extension supports Unreal Engine **v4.25** / **v4.26.1+** / and **v5.0.0+
 - Added concurrency guard to prevent multiple simultaneous refresh operations
 - Non-blocking activation: heavy startup work runs in the background
 - Status bar "Done" indicator now disposes asynchronously; no artificial activation delay
+- Status bar now displays as "UE FIX" instead of "IF"
 
 ---
 ## 3.8.3-hlstriker Sept 7, 2025

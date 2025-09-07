@@ -24,6 +24,7 @@ let resetEventFileWatcher: vscode.FileSystemWatcher | undefined;
 
 let _ueVersion: { major: number; minor: number; patch: number; };
 let isRefreshing = false;
+let mainStatusItem: vscode.StatusBarItem | undefined;
 
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -75,7 +76,8 @@ export async function activate(context: vscode.ExtensionContext) {
 	}));
 
 
-	const statusItem: vscode.StatusBarItem = createAndShowMainStatusItem();
+	// Show busy status while initial fixes run
+	showBusyStatus();
 
 	// Don't add a command to run fixes. This must run on startup to run the fixes before Tag Parser starts adding unneeded symbols to cache.
 	//const fixableProject = await runExtensionWithProgress();
@@ -95,7 +97,7 @@ export async function activate(context: vscode.ExtensionContext) {
 			console.log(`\n*** Number of error messages: ${console.getErrorCount()}`);
 			console.log(`*** Number of warning messages: ${console.getWarningCount()}`);
 			console.log("If you get any errors you can try restarting VSCode to check if they've been fixed.");
-			endRun(statusItem);
+			endRun();
 		}
 	})();
 	
@@ -148,13 +150,25 @@ async function runExtensionNoProgress(): Promise<Fixable | undefined> {
 }
 
 
-function createAndShowMainStatusItem(): vscode.StatusBarItem {
-	const statusItem = vscode.window.createStatusBarItem(consts.MAIN_STATUS_ALIGN, consts.MAIN_STATUS_PRIORITY);
-	statusItem.text = consts.MAIN_STATUS_TEXT_FIXING;
-	statusItem.command = consts.MAIN_STATUS_COMMAND;
-	statusItem.show();
+function getOrCreateMainStatusItem(): vscode.StatusBarItem {
+	if (!mainStatusItem) {
+		mainStatusItem = vscode.window.createStatusBarItem(consts.MAIN_STATUS_ALIGN, consts.MAIN_STATUS_PRIORITY);
+		mainStatusItem.command = consts.MAIN_STATUS_COMMAND;
+	}
+	mainStatusItem.show();
+	return mainStatusItem;
+}
 
-	return statusItem;
+function showBusyStatus(extraText?: string): void {
+	const item = getOrCreateMainStatusItem();
+	item.text = extraText ? `${consts.MAIN_STATUS_TEXT_FIXING} ${extraText}` : consts.MAIN_STATUS_TEXT_FIXING;
+	item.show();
+}
+
+function showDoneStatus(): void {
+	const item = getOrCreateMainStatusItem();
+	item.text = consts.MAIN_STATUS_TEXT_DONE;
+	item.show();
 }
 
 
@@ -171,13 +185,13 @@ function getFixesEnabledSettings(): { isFixesEnabled: boolean, isOptionalFixesEn
 }
 
 
-function endRun(statusItem: vscode.StatusBarItem): void {
+function endRun(): void {
 	console.log("\nExtension is done.");
-
-	statusItem.text = consts.MAIN_STATUS_TEXT_DONE;
-	// Dispose later without blocking activation
+	// Mark done and dispose later without blocking activation
+	showDoneStatus();
+	const item = getOrCreateMainStatusItem();
 	setTimeout(() => {
-		try { statusItem.dispose(); } catch { /* no-op */ }
+		try { item.dispose(); mainStatusItem = undefined; } catch { /* no-op */ }
 	}, consts.MAIN_STATUS_LIFE);
 }
 
@@ -231,6 +245,7 @@ async function performExtensionRefresh(): Promise<void> {
 	console.log("Re-running extension fixes and rescanning IntelliSense database...\n");
 
 	console.outputChannel?.show(true);
+	showBusyStatus();
 
 	// Get or create a fixable project (this will handle UE version detection)
 	const fixableProject = await getFixableProject();
@@ -249,6 +264,8 @@ async function performExtensionRefresh(): Promise<void> {
 		console.error(`Failed to execute extension fixes: ${error}`);
 		await vscode.window.showErrorMessage("Failed to execute extension fixes. Check the output channel for details.");
 		return;
+	} finally {
+		showDoneStatus();
 	}
 
 	// await vscode.window.showInformationMessage("Extension fixes re-run and IntelliSense refreshed!", text.OK);
