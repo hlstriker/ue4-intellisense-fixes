@@ -23,6 +23,7 @@ let newFileWatcher: vscode.FileSystemWatcher | undefined;
 let resetEventFileWatcher: vscode.FileSystemWatcher | undefined;
 
 let _ueVersion: { major: number; minor: number; patch: number; };
+let isRefreshing = false;
 
 
 export async function activate(context: vscode.ExtensionContext) {
@@ -49,6 +50,12 @@ export async function activate(context: vscode.ExtensionContext) {
 	));
 
 	context.subscriptions.push(vscode.commands.registerCommand(consts.REFRESH_COMMAND, async () => {
+		if (isRefreshing) {
+			console.log("Refresh already in progress, skipping this request.");
+			return;
+		}
+		isRefreshing = true;
+		console.outputChannel?.show(true);
 		console.log("Manual refresh command triggered!");
 		try {
 			await performExtensionRefresh();
@@ -56,6 +63,8 @@ export async function activate(context: vscode.ExtensionContext) {
 		} catch (error) {
 			console.error(`Manual refresh command failed: ${error}`);
 			await vscode.window.showErrorMessage(`Manual refresh failed: ${error}`);
+		} finally {
+			isRefreshing = false;
 		}
 	}
 	));
@@ -73,13 +82,18 @@ export async function activate(context: vscode.ExtensionContext) {
 
 	// Don't add a command to run fixes. This must run on startup to run the fixes before Tag Parser starts adding unneeded symbols to cache.
 	//const fixableProject = await runExtensionWithProgress();
-	const fixableProject = await runExtensionNoProgress();
-	
-	if (fixableProject?.project?.isValid) {
-		createWatchers(fixableProject);
-	}
-	else {
-		console.error("Couldn't create file watchers!");
+	isRefreshing = true;
+	try {
+		const fixableProject = await runExtensionNoProgress();
+		
+		if (fixableProject?.project?.isValid) {
+			createWatchers(fixableProject);
+		}
+		else {
+			console.error("Couldn't create file watchers!");
+		}
+	} finally {
+		isRefreshing = false;
 	}
 	
 	console.log(`\n*** Number of error messages: ${console.getErrorCount()}`);
@@ -253,10 +267,17 @@ function createWatchers(fixableProject: Fixable) {
 	newFileWatcher = createFileWatcher(mainWorkspace, consts.GLOB_ALL_HEADERS_AND_SOURCE_FILES, { create: false, change: true, delete: true });
 
 	resetEventFileWatcher?.onDidChange(async () => {	
-
+		if (isRefreshing) {
+			console.log("Refresh already in progress, skipping file watcher trigger.");
+			return;
+		}
+		isRefreshing = true;
 		console.log("Detected reset!");
-
-		await performExtensionRefresh();
+		try {
+			await performExtensionRefresh();
+		} finally {
+			isRefreshing = false;
+		}
 	});
 
 	newFileWatcher?.onDidCreate(async uri =>  {

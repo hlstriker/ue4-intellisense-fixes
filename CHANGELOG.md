@@ -5,6 +5,7 @@
 - Automatic IntelliSense refresh on project reset detection (no VS Code restart required)
 - Executes C_Cpp.RescanWorkspace command for IntelliSense refresh
 - Manual refresh command: "UE IntelliSense: Refresh UE IntelliSense Fixes" for on-demand IntelliSense refresh
+- Concurrency guard to prevent multiple simultaneous refresh operations (manual or automatic)
 
 # [3.8.3-hlstriker] 2025-9-7
 ### Added
