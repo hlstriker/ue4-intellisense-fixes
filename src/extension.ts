@@ -27,27 +27,25 @@ let isRefreshing = false;
 
 
 export async function activate(context: vscode.ExtensionContext) {
+	console.outputChannel?.show(true);
+	console.log(`\nExtension "UE Intellisense Fixes" ${EXTENSION_VERSION} is now active!\n`);
 	console.resetCounts(); // just to be sure
 
+	// Now using the glob again in package.json. Seems to work fine. Leave the below commented out for now.
 	// This is a workaround because the glob activation event sometimes didn't work
 	// For some people it was really bad
-	const hasUProjectFile: boolean = await isUnrealProject();
-	if(hasUProjectFile === false) {
-		// console.log('No *.uproject file found!');
-		return;
-	}
-	else if(hasUProjectFile === true) {
-		console.log('*.uproject file was found!');
-	}
-
-	await checkForSettingsInWorkspace(consts.SETTINGS_NONE_IN_WORKSPACE);
-	
-	console.log(`\nExtension "UE Intellisense Fixes" ${EXTENSION_VERSION} is now active!\n`);
+	// const hasUProjectFile: boolean = await isUnrealProject();
+	// if(hasUProjectFile === false) {
+	// 	// console.log('No *.uproject file found!');
+	// 	return;
+	// }
+	// else if(hasUProjectFile === true) {
+	// 	console.log('*.uproject file was found!');
+	// }
 
 	context.subscriptions.push(vscode.commands.registerCommand("UEIntellisenseFixes.showLog", () => {
 		console.outputChannel?.show(true);
-	}
-	));
+	}));
 
 	context.subscriptions.push(vscode.commands.registerCommand(consts.REFRESH_COMMAND, async () => {
 		if (isRefreshing) {
@@ -66,15 +64,14 @@ export async function activate(context: vscode.ExtensionContext) {
 		} finally {
 			isRefreshing = false;
 		}
-	}
-	));
+	}));
 
+	await checkForSettingsInWorkspace(consts.SETTINGS_NONE_IN_WORKSPACE);
 	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration( async e => {
 		const mainWorkspaceFolder = shared.getMainWorkspaceFolder();
 		if(!mainWorkspaceFolder || !e.affectsConfiguration(consts.CONFIG_SECTION_EXTENSION, mainWorkspaceFolder)){return;}
 		
 		await checkForSettingsInWorkspace(consts.SETTINGS_NONE_IN_WORKSPACE);
-		
 	}));
 
 
