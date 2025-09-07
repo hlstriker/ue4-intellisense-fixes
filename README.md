@@ -19,6 +19,11 @@ https://www.jetbrains.com/lp/rider-unreal/
 
 ---
 
+## Credits
+
+This is a fork of the original [UE4 Intellisense Fixes](https://github.com/boocs/ue4-intellisense-fixes) extension originally created by [boocs](https://github.com/boocs), based on version 3.8.2.
+
+---
 
 ## VSCode/UE Intellisense Fix
 
@@ -49,6 +54,10 @@ VSCode Extension supports Unreal Engine **v4.25** / **v4.26.1+** / and **v5.0.0+
   Navigation is unaffected.
   You can disable this in this extension's settings.
 - File Changed: Unreal Source's .vscode/settings.json
+
+## 3.8.3-hlstriker Sept 7, 2025
+- Support for compileCommands in c_cpp_properties.json as an array of strings (UE 4.27.2+), in addition to single string
+- Updated version to indicate this is a fork
 
 ---
 ## 3.8.2 Feb 18, 2025

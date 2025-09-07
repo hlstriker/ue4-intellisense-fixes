@@ -246,8 +246,8 @@ export abstract class ProjectCCpp extends ValidatedBuilderBase {
 
         //  compileCommands array check
         const compileCommandsPath = cCppProperties.configurations?.[configIndex].compileCommands;
-        if(typeof compileCommandsPath !== 'string'){
-            console.error(`Compile commands path wasn't a string! Try using the Unreal Refresh Project ability.`);
+        if(typeof compileCommandsPath !== 'string' && !Array.isArray(compileCommandsPath)){
+            console.error(`Compile commands path wasn't a string or array! Try using the Unreal Refresh Project ability.`);
             return false;
         }
 
@@ -307,8 +307,8 @@ export abstract class ProjectCCpp extends ValidatedBuilderBase {
         for (const configIndex in cCppProperties.configurations) {
             //  compileCommands array check
             const compileCommandsPath = cCppProperties.configurations?.[configIndex].compileCommands;
-            if(typeof compileCommandsPath !== 'string'){
-                console.error(`Compile commands path wasn't a string! Try using the Unreal Refresh Project ability.`);
+            if(typeof compileCommandsPath !== 'string' && !Array.isArray(compileCommandsPath)){
+                console.error(`Compile commands path wasn't a string or array! Try using the Unreal Refresh Project ability.`);
                 return false;
             }
 
@@ -319,7 +319,7 @@ export abstract class ProjectCCpp extends ValidatedBuilderBase {
 
             const compileCommands = await CompileCommands.create(compileCommandsPath);
             if (!compileCommands.isValid) {
-                console.error(`${configIndex}: Couldn't create compileCommands from ${compileCommandsPath} with key:${workspaceKey}! (not an error with UE 4.25.#)`);
+                console.error(`${configIndex}: Couldn't create compileCommands from ${Array.isArray(compileCommandsPath) ? compileCommandsPath.join(', ') : compileCommandsPath} with key:${workspaceKey}! (not an error with UE 4.25.#)`);
                 continue;
             }
 

@@ -1,16 +1,16 @@
 {
 	"name": "ue4-intellisense-fixes",
 	"displayName": "UE Intellisense Fixes",
-	"description": "Automatically fixes Unreal Engine Intellisense configuration on startup.",
-	"version": "3.8.2",
-	"publisher": "boocs",
+	"description": "Automatically fixes Unreal Engine Intellisense configuration on startup. (Fork with UE 4.27.2+ array support)",
+	"version": "3.8.3-hlstriker",
+	"publisher": "hlstriker",
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/boocs/ue4-intellisense-fixes.git"
+		"url": "https://github.com/hlstriker/ue4-intellisense-fixes.git"
 	},
 	"bugs": {
-		"url": "https://github.com/boocs/ue4-intellisense-fixes/issues"
+		"url": "https://github.com/hlstriker/ue4-intellisense-fixes/issues"
 	},
 	"engines": {
 		"vscode": "^1.63.1"

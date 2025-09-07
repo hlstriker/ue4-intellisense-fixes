@@ -10,7 +10,7 @@ export const RE_RESPONSE_FILE_PATH = `[\\\/\\\\\\\w:. -]+.rsp`;
 
 export class CompileCommands {
 
-    protected _path: string;
+    protected _path: string | string[];
     protected _compileCommands: CommandObjectJson[];
     protected _isDirty = false;
     protected _isValid  = false;
@@ -19,7 +19,7 @@ export class CompileCommands {
      * @param path to compile commands file
      * @throws Error
      */
-    private constructor(pathStr: string, compileCommands: CommandObjectJson[]) {
+    private constructor(pathStr: string | string[], compileCommands: CommandObjectJson[]) {
         this._path = pathStr;
         this._compileCommands = compileCommands;
         if(this.length){  // This class is an iterator so it checks _compileCommands length
@@ -28,7 +28,7 @@ export class CompileCommands {
                 
     }
 
-    public static async create(pathStr: string) {
+    public static async create(pathStr: string | string[]) {
         const compileCommands = await CompileCommands.createCompileCommands(pathStr);
 
         return new CompileCommands(pathStr, compileCommands);
@@ -38,7 +38,7 @@ export class CompileCommands {
         return this._compileCommands;
     }
 
-    get path(): string {
+    get path(): string | string[] {
         return this._path;
     }
 
@@ -79,21 +79,32 @@ export class CompileCommands {
     /**
      * @returns empty array on error
      */
-    protected static async createCompileCommands(pathStr: string): Promise<CommandObjectJson[]> {
-        const jsonString = await shared.readStringFromFile(pathStr);
+    protected static async createCompileCommands(pathStr: string | string[]): Promise<CommandObjectJson[]> {
+        const paths = Array.isArray(pathStr) ? pathStr : [pathStr];
+        let allCompileCommands: CommandObjectJson[] = [];
 
-        if(!jsonString){
-            console.error(`Couldn't read compile commands file: ${pathStr}`);
-            return [];
-        }
-        
-        const compileCommands = shared.jsonParseSafe(jsonString);
-        if(!compileCommands){
-            console.error("Couldn't parse compile commands.");
-            return [];
+        for (const path of paths) {
+            const jsonString = await shared.readStringFromFile(path);
+
+            if(!jsonString){
+                console.error(`Couldn't read compile commands file: ${path}`);
+                continue;
+            }
+            
+            const compileCommands = shared.jsonParseSafe(jsonString);
+            if(!compileCommands){
+                console.error(`Couldn't parse compile commands from: ${path}`);
+                continue;
+            }
+
+            if (Array.isArray(compileCommands)) {
+                allCompileCommands = allCompileCommands.concat(compileCommands);
+            } else {
+                console.error(`Compile commands from ${path} is not an array`);
+            }
         }
 
-        return compileCommands;
+        return allCompileCommands;
     }
 
     /**
@@ -159,9 +170,10 @@ export class CompileCommands {
         }
 
         const compileCommandsString = JSON.stringify(this.compileCommands, undefined, JSON_SPACING);
-        await shared.writeJsonOrStringToFile(this.path, compileCommandsString);
+        const pathToSave = Array.isArray(this.path) ? this.path[0] : this.path;
+        await shared.writeJsonOrStringToFile(pathToSave, compileCommandsString);
 
-        console.log(`File write: ${this.path}`);
+        console.log(`File write: ${Array.isArray(this.path) ? this.path.join(', ') : this.path}`);
     }
 
  }

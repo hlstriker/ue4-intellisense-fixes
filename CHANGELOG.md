@@ -1,5 +1,11 @@
 ### [TODO]
 
+# [3.8.3-hlstriker] 2025-9-7
+### Added
+- Support for compileCommands in c_cpp_properties.json as an array of strings (UE 4.27.2+), in addition to single string
+### Changed
+- Updated version to indicate this is a fork
+
 # [3.8.2] 2025-2-13
 ### Added
 - Warn if user sets project specific extension setting in Workspace. Most settings should go in Workspace 'Folder'.
