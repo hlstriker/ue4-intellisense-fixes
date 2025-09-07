@@ -17,7 +17,7 @@ import * as console from "./console";
 // Docs: create quick start guide
   // Tell about setting settings in Folder setting (show how to pick project folder and not Unreal folder)
 
-const EXTENSION_VERSION = "3.8.2";
+const EXTENSION_VERSION = "3.8.4";
 
 let newFileWatcher: vscode.FileSystemWatcher | undefined;
 let resetEventFileWatcher: vscode.FileSystemWatcher | undefined;
@@ -83,24 +83,24 @@ export async function activate(context: vscode.ExtensionContext) {
 	// Don't add a command to run fixes. This must run on startup to run the fixes before Tag Parser starts adding unneeded symbols to cache.
 	//const fixableProject = await runExtensionWithProgress();
 	isRefreshing = true;
-	try {
-		const fixableProject = await runExtensionNoProgress();
-		
-		if (fixableProject?.project?.isValid) {
-			createWatchers(fixableProject);
+	void (async () => {
+		try {
+			const fixableProject = await runExtensionNoProgress();
+			
+			if (fixableProject?.project?.isValid) {
+				createWatchers(fixableProject);
+			}
+			else {
+				console.error("Couldn't create file watchers!");
+			}
+		} finally {
+			isRefreshing = false;
+			console.log(`\n*** Number of error messages: ${console.getErrorCount()}`);
+			console.log(`*** Number of warning messages: ${console.getWarningCount()}`);
+			console.log("If you get any errors you can try restarting VSCode to check if they've been fixed.");
+			endRun(statusItem);
 		}
-		else {
-			console.error("Couldn't create file watchers!");
-		}
-	} finally {
-		isRefreshing = false;
-	}
-	
-	console.log(`\n*** Number of error messages: ${console.getErrorCount()}`);
-	console.log(`*** Number of warning messages: ${console.getWarningCount()}`);
-	console.log("If you get any errors you can try restarting VSCode to check if they've been fixed.");
-		
-	await endRun(statusItem);
+	})();
 	
 }
 
@@ -174,15 +174,14 @@ function getFixesEnabledSettings(): { isFixesEnabled: boolean, isOptionalFixesEn
 }
 
 
-async function endRun(statusItem: vscode.StatusBarItem): Promise<void> {
+function endRun(statusItem: vscode.StatusBarItem): void {
 	console.log("\nExtension is done.");
 
 	statusItem.text = consts.MAIN_STATUS_TEXT_DONE;
-	await shared.delay(consts.MAIN_STATUS_LIFE);
-
-	statusItem.dispose();
-
-	return;
+	// Dispose later without blocking activation
+	setTimeout(() => {
+		try { statusItem.dispose(); } catch { /* no-op */ }
+	}, consts.MAIN_STATUS_LIFE);
 }
 
 
@@ -255,7 +254,7 @@ async function performExtensionRefresh(): Promise<void> {
 		return;
 	}
 
-	await vscode.window.showInformationMessage("Extension fixes re-run and IntelliSense refreshed!", text.OK);
+	// await vscode.window.showInformationMessage("Extension fixes re-run and IntelliSense refreshed!", text.OK);
 }
 
 

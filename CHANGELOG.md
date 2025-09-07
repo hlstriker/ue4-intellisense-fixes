@@ -6,6 +6,9 @@
 - Executes C_Cpp.RescanWorkspace command for IntelliSense refresh
 - Manual refresh command: "UE IntelliSense: Refresh UE IntelliSense Fixes" for on-demand IntelliSense refresh
 - Concurrency guard to prevent multiple simultaneous refresh operations (manual or automatic)
+### Changed
+- Activation no longer blocks: startup work runs in the background
+- Status bar completion message is now disposed asynchronously (removed long awaited delay in activation)
 
 # [3.8.3-hlstriker] 2025-9-7
 ### Added
