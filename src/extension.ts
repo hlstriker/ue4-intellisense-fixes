@@ -132,7 +132,7 @@ async function runExtensionNoProgress(): Promise<Fixable | undefined> {
 	}
 	
 	await fixableProject.execFixes(_ueVersion);
-	
+
 	return fixableProject;
 }
 
@@ -238,26 +238,6 @@ async function performExtensionRefresh(): Promise<void> {
 	} catch (error) {
 		console.error(`Failed to execute extension fixes: ${error}`);
 		await vscode.window.showErrorMessage("Failed to execute extension fixes. Check the output channel for details.");
-		return;
-	}
-
-	// Reset IntelliSense database
-	/*
-	try {
-		await vscode.commands.executeCommand('C_Cpp.ResetDatabase');
-		console.log("IntelliSense database has been reset.");
-	} catch (error) {
-		console.error(`Failed to reset IntelliSense database: ${error}`);
-	}
-	*/
-
-	// Rescan workspace for changes
-	try {
-		await vscode.commands.executeCommand('C_Cpp.RescanWorkspace');
-		console.log("Workspace has been rescanned.");
-	} catch (error) {
-		console.error(`Failed to rescan workspace: ${error}`);
-		await vscode.window.showErrorMessage(`Failed to rescan workspace: ${error}`);
 		return;
 	}
 

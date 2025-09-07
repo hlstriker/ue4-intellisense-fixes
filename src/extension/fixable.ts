@@ -1,4 +1,5 @@
 
+import * as vscode from "vscode";
 import type { ProjectUE4 } from "../project/projectUE4";
 
 import * as console from "../console";
@@ -19,6 +20,26 @@ export abstract class Fixable{
 
     public get isOptionalFixesEnabled() {
         return this._isOptionalFixesEnabled;
+    }
+
+    protected async rescanIntelliSense(): Promise<void> {
+        // Reset IntelliSense database
+        /*
+        try {
+            await vscode.commands.executeCommand('C_Cpp.ResetDatabase');
+            console.log("IntelliSense database has been reset.");
+        } catch (error) {
+            console.error(`Failed to reset IntelliSense database: ${error}`);
+        }
+        */
+    
+        // Rescan workspace for changes
+        try {
+            await vscode.commands.executeCommand('C_Cpp.RescanWorkspace');
+            console.log("Workspace has been rescanned after applying fixes.");
+        } catch (error) {
+            console.error(`Failed to rescan workspace: ${error}`);
+        }
     }
    
     public async execFixes(ueVersion: { major: number; minor: number; patch: number; }) : Promise<void> { 
@@ -43,7 +64,9 @@ export abstract class Fixable{
         if(this._isFixesEnabled || this._isOptionalFixesEnabled){
             await this.postFixProject();
         }
-        
+
+        await this.rescanIntelliSense();
+
         return;
     }
 
