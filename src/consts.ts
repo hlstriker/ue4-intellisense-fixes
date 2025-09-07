@@ -81,6 +81,7 @@ export const MAIN_STATUS_TEXT_DONE = "IF $(check)";
 export const MAIN_STATUS_ALIGN = vscode.StatusBarAlignment.Left;
 export const MAIN_STATUS_PRIORITY = -1500;
 export const MAIN_STATUS_COMMAND = "UEIntellisenseFixes.showLog";
+export const REFRESH_COMMAND = "UEIntellisenseFixes.refresh";
 export const MAIN_STATUS_LIFE = 120000;
 
 export const RE_SEPARATOR = "/";

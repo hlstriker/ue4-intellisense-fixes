@@ -1,5 +1,11 @@
 ### [TODO]
 
+# [3.8.4-hlstriker] 2025-9-7
+### Added
+- Automatic IntelliSense refresh on project reset detection (no VS Code restart required)
+- Executes C_Cpp.RescanWorkspace command for IntelliSense refresh
+- Manual refresh command: "UE IntelliSense: Refresh UE IntelliSense Fixes" for on-demand IntelliSense refresh
+
 # [3.8.3-hlstriker] 2025-9-7
 ### Added
 - Support for compileCommands in c_cpp_properties.json as an array of strings (UE 4.27.2+), in addition to single string

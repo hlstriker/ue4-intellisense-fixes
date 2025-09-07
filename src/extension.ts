@@ -48,6 +48,18 @@ export async function activate(context: vscode.ExtensionContext) {
 	}
 	));
 
+	context.subscriptions.push(vscode.commands.registerCommand(consts.REFRESH_COMMAND, async () => {
+		console.log("Manual refresh command triggered!");
+		try {
+			await performExtensionRefresh();
+			console.log("Manual refresh command completed successfully.");
+		} catch (error) {
+			console.error(`Manual refresh command failed: ${error}`);
+			await vscode.window.showErrorMessage(`Manual refresh failed: ${error}`);
+		}
+	}
+	));
+
 	context.subscriptions.push(vscode.workspace.onDidChangeConfiguration( async e => {
 		const mainWorkspaceFolder = shared.getMainWorkspaceFolder();
 		if(!mainWorkspaceFolder || !e.affectsConfiguration(consts.CONFIG_SECTION_EXTENSION, mainWorkspaceFolder)){return;}
@@ -205,6 +217,54 @@ async function getFixableProject(): Promise<Fixable | undefined> {
 }
 
 
+async function performExtensionRefresh(): Promise<void> {
+	console.log("Re-running extension fixes and rescanning IntelliSense database...\n");
+
+	console.outputChannel?.show(true);
+
+	// Get or create a fixable project (this will handle UE version detection)
+	const fixableProject = await getFixableProject();
+	
+	if (!fixableProject) {
+		console.error("Could not create fixable project for manual refresh.");
+		await vscode.window.showErrorMessage("Could not create fixable project. Please ensure you're in a valid Unreal Engine project.");
+		return;
+	}
+
+	// Execute the fixes
+	try {
+		await fixableProject.execFixes(_ueVersion);
+		console.log("Extension fixes completed successfully.");
+	} catch (error) {
+		console.error(`Failed to execute extension fixes: ${error}`);
+		await vscode.window.showErrorMessage("Failed to execute extension fixes. Check the output channel for details.");
+		return;
+	}
+
+	// Reset IntelliSense database
+	/*
+	try {
+		await vscode.commands.executeCommand('C_Cpp.ResetDatabase');
+		console.log("IntelliSense database has been reset.");
+	} catch (error) {
+		console.error(`Failed to reset IntelliSense database: ${error}`);
+	}
+	*/
+
+	// Rescan workspace for changes
+	try {
+		await vscode.commands.executeCommand('C_Cpp.RescanWorkspace');
+		console.log("Workspace has been rescanned.");
+	} catch (error) {
+		console.error(`Failed to rescan workspace: ${error}`);
+		await vscode.window.showErrorMessage(`Failed to rescan workspace: ${error}`);
+		return;
+	}
+
+	await vscode.window.showInformationMessage("Extension fixes re-run and IntelliSense refreshed!", text.OK);
+}
+
+
 function createWatchers(fixableProject: Fixable) {
 
 	const mainWorkspace = fixableProject?.project.mainWorkspaceFolder;
@@ -212,14 +272,11 @@ function createWatchers(fixableProject: Fixable) {
 	resetEventFileWatcher = createFileWatcher(mainWorkspace, consts.GLOB_PROJECT_RESET_FILE_CREATION, { create: true, change: false, delete: true });
 	newFileWatcher = createFileWatcher(mainWorkspace, consts.GLOB_ALL_HEADERS_AND_SOURCE_FILES, { create: false, change: true, delete: true });
 
-	resetEventFileWatcher?.onDidChange(async e => {	
+	resetEventFileWatcher?.onDidChange(async () => {	
 
 		console.log("Detected reset!");
-		console.log("WARNING: Restart VSCode to fix Intellisense errors.\n");
 
-		console.outputChannel?.show(true);
-
-		await vscode.window.showInformationMessage("Detected project reset. Restart VSCode to fix Intellisense errors!", text.OK);
+		await performExtensionRefresh();
 	});
 
 	newFileWatcher?.onDidCreate(async uri =>  {

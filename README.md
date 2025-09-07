@@ -55,6 +55,12 @@ VSCode Extension supports Unreal Engine **v4.25** / **v4.26.1+** / and **v5.0.0+
   You can disable this in this extension's settings.
 - File Changed: Unreal Source's .vscode/settings.json
 
+## 3.8.4-hlstriker Sept 7, 2025
+- Automatic IntelliSense refresh on project reset (no VS Code restart required)
+- Executes C_Cpp.RescanWorkspace command for IntelliSense refresh
+- Added manual refresh command: "UE IntelliSense: Refresh UE IntelliSense Fixes"
+
+---
 ## 3.8.3-hlstriker Sept 7, 2025
 - Support for compileCommands in c_cpp_properties.json as an array of strings (UE 4.27.2+), in addition to single string
 - Updated version to indicate this is a fork

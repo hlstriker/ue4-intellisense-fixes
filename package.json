@@ -1,8 +1,8 @@
 {
 	"name": "ue4-intellisense-fixes",
 	"displayName": "UE Intellisense Fixes",
-	"description": "Automatically fixes Unreal Engine Intellisense configuration on startup. (Fork with UE 4.27.2+ array support)",
-	"version": "3.8.3-hlstriker",
+	"description": "Automatically fixes Unreal Engine Intellisense configuration on startup. Includes UE 4.27.2+ array support and automatic IntelliSense refresh on project reset. (Fork with enhanced features)",
+	"version": "3.8.4-hlstriker",
 	"publisher": "hlstriker",
 	"license": "MIT",
 	"repository": {
@@ -23,6 +23,18 @@
 	],
 	"main": "./out/extension.js",
 	"contributes": {
+		"commands": [
+			{
+				"command": "UEIntellisenseFixes.refresh",
+				"title": "Refresh UE IntelliSense Fixes",
+				"category": "UE IntelliSense"
+			},
+			{
+				"command": "UEIntellisenseFixes.showLog",
+				"title": "Show Log",
+				"category": "UE IntelliSense"
+			}
+		],
 		"configuration": {
 			"title": "UE Intellisense fixes",
 			"properties": {
